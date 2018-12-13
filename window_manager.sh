@@ -22,6 +22,7 @@ pgrep -x "xfwm4"
 if [ $? = 0 ]; then
 echo
 echo "@ Xfwm4 già ATTIVO, non procedo"
+sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
 else
 xfconf-query -c xfwm4 -p /general/workspace_count -s 4
 killall -w emerald
@@ -29,6 +30,7 @@ killall -w compiz
 xfwm4 --replace --daemon
 xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s false
 xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s true
+sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
 fi
 xfwm4_desktopfile
 }
@@ -38,10 +40,12 @@ pgrep -x "compiz"
 if [ $? = 0 ]; then
 echo
 echo "@ Compiz già ATTIVO, non procedo"
+sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
 else
 killall -w emerald
 killall -w compiz
 compiz --replace &
+sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
 #    sleep 3 && emerald --replace &
 fi
 compiz_desktopfile
@@ -67,8 +71,6 @@ fi
 xfwm4_desktopfile(){
 grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
 if [ $? = 0 ]; then
-sh -c 'echo "Xfwm4"'
-sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
 sh -c 'echo "[Desktop Entry]
 Version=1.0
 Type=Application
@@ -88,8 +90,6 @@ desktopfile
 compiz_desktopfile(){
 grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
 if [ $? = 0 ]; then
-sh -c 'echo "Compiz"'
-sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
 sh -c 'echo "[Desktop Entry]
 Version=1.0
 Type=Application
