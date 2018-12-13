@@ -137,7 +137,7 @@ Version=0.9.4
 Type=Application
 Name=window-manager
 Comment=
-Exec=window-manager --xfwm4
+Exec=window-manager --xfwm4-desktopfile
 OnlyShowIn=XFCE;
 StartupNotify=false
 Terminal=false
@@ -159,7 +159,7 @@ Version=0.9.4
 Type=Application
 Name=window-manager
 Comment=
-Exec=window-manager --compiz
+Exec=window-manager --compiz-desktopfile
 OnlyShowIn=XFCE;
 StartupNotify=false
 Terminal=false
@@ -214,6 +214,12 @@ then
 elif [ "$1" = "--toggle" ]
 then
    wm_toggle
+elif [ "$1" = "--xfwm4-desktopfile" ]
+then
+   xfwm4_desktopfile
+elif [ "$1" = "--compiz-desktopfile" ]
+then
+   compiz_desktopfile
 elif [ "$1" = "--desktopfile" ]
 then
    desktopfile
