@@ -26,7 +26,7 @@ $ window-manager
 ```
 window-manager eseguirà uno switch fra i window manager Xfwm4 e Compiz
 
-Al primo avvio creerà un avviatore in Applicazioni > Impostazioni > window-manager toggle
+Al primo avvio creerà un avviatore in Applicazioni > Impostazioni > window-manager toggle.
 Questo avviatore aggiunto al pannello sarà dinamico, se Xfwm4 è attivo indicherà di attivare Compiz e viceversa
 
 È possibile utilizzare le seguenti opzioni:
