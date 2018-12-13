@@ -107,11 +107,11 @@ desktopfile
 }
 
 desktopfile(){
+#echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
 if [ -e $HOME/.local/share/applications/window-manager.desktop ]
 then
-echo
+echo # "exist"
 else
-echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
 sh -c 'echo "
 [Desktop Entry]
 Name=window-manager toggle
@@ -124,15 +124,14 @@ Categories=XFCE;GTK;Settings;DesktopSettings;X-XFCE-SettingsDialog;X-XFCE-Person
 OnlyShowIn=XFCE;" > $HOME/.local/share/applications/window-manager.desktop'
 fi
 
-if [ -e $HOME/.config/autostart/window-manager.desktop ]
-then
-	echo
-else
-	xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "xfwm"
+#echo -e "\e[1;34m## Creating autostart window-manager.desktop file\e[0m"
+xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "xfwm"
+if [ $? = 0 ]; then
+	cat $HOME/.config/autostart/window-manager.desktop | grep "xfwm"
 	if [ $? = 0 ]; then
-	echo -e "\e[1;34m## Creating autostart window-manager.desktop file\e[0m"
-	sh -c 'echo "
-[Desktop Entry]
+		echo # "already ok"
+	else
+		sh -c 'echo "[Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
 Type=Application
@@ -144,11 +143,17 @@ StartupNotify=false
 Terminal=false
 Hidden=false" > $HOME/.config/autostart/window-manager.desktop'
 	fi
-	xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "compiz"
+else
+	echo # "it's not xfwm4"
+fi
+
+xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "compiz"
+if [ $? = 0 ]; then
+	cat $HOME/.config/autostart/window-manager.desktop | grep "compiz"
 	if [ $? = 0 ]; then
-	echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
-	sh -c 'echo "
-[Desktop Entry]
+		echo # "already ok"
+	else
+		sh -c 'echo "[Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
 Type=Application
@@ -160,6 +165,8 @@ StartupNotify=false
 Terminal=false
 Hidden=false" > $HOME/.config/autostart/window-manager.desktop'
 	fi
+else
+	echo # "it's not xfwm4"
 fi
 exit 0
 }
@@ -207,6 +214,9 @@ then
 elif [ "$1" = "--toggle" ]
 then
    wm_toggle
+elif [ "$1" = "--desktopfile" ]
+then
+   desktopfile
 else
    wm_toggle
 fi
