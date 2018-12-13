@@ -6,7 +6,7 @@
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
 
 ### DESCRIZIONE
-Questo script permette di attivare i window manager Xfwm4 e Compiz
+Questo script permette di attivare i window manager Xfwm4 e Compiz.
 
 ### INSTALLAZIONE
 ```sh
