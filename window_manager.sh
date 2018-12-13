@@ -112,7 +112,7 @@ then
 exit 0
 else
 echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
-sudo sh -c 'echo "
+sh -c 'echo "
 [Desktop Entry]
 Name=window-manager toggle
 Exec=window-manager
