@@ -6,7 +6,7 @@
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
 
 #echo -n "Checking dependencies... "
-for name in xfwm4 compiz
+for name in xfwm4 compiz xfconf-query
 do
   [[ $(which $name 2>/dev/null) ]] || { echo -en "\n$name è richiesto da questo script. Utilizza 'sudo apt-get install $name'";deps=1; }
 done
@@ -109,7 +109,7 @@ desktopfile
 desktopfile(){
 if [ -e $HOME/.local/share/applications/window-manager.desktop ]
 then
-exit 0
+echo
 else
 echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
 sh -c 'echo "
@@ -122,8 +122,46 @@ Type=Application
 StartupNotify=false
 Categories=XFCE;GTK;Settings;DesktopSettings;X-XFCE-SettingsDialog;X-XFCE-PersonalSettings;
 OnlyShowIn=XFCE;" > $HOME/.local/share/applications/window-manager.desktop'
-exit 0
 fi
+
+if [ -e $HOME/.config/autostart/window-manager.desktop ]
+then
+	echo
+else
+	xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "xfwm"
+	if [ $? = 0 ]; then
+	echo -e "\e[1;34m## Creating autostart window-manager.desktop file\e[0m"
+	sh -c 'echo "
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=window-manager
+Comment=
+Exec=window-manager --xfwm4
+OnlyShowIn=XFCE;
+StartupNotify=false
+Terminal=false
+Hidden=false" > $HOME/.config/autostart/window-manager.desktop'
+	fi
+	xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "compiz"
+	if [ $? = 0 ]; then
+	echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
+	sh -c 'echo "
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=window-manager
+Comment=
+Exec=window-manager --compiz
+OnlyShowIn=XFCE;
+StartupNotify=false
+Terminal=false
+Hidden=false" > $HOME/.config/autostart/window-manager.desktop'
+	fi
+fi
+exit 0
 }
 
 givemehelp(){
