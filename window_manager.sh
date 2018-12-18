@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version:    1.0.0
+# Version:    1.0.1
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
@@ -15,14 +15,13 @@ done
 mkdir -p $HOME/.status_files/
 touch $HOME/.status_files/window_manager_status
 
-export DESKTOPFILE=`grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop | cut -d: -f1`
+DESKTOPFILE="$(grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop | cut -d: -f1)"
 
 wm_xfwm4(){
 pgrep -x "xfwm4"
 if [ $? = 0 ]; then
 echo
 echo "@ Xfwm4 già ATTIVO, non procedo"
-sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
 else
 xfconf-query -c xfwm4 -p /general/workspace_count -s 4
 killall -w emerald
@@ -30,7 +29,6 @@ killall -w compiz
 xfwm4 --replace --daemon
 xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s false
 xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s true
-sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
 fi
 xfwm4_desktopfile
 }
@@ -40,12 +38,10 @@ pgrep -x "compiz"
 if [ $? = 0 ]; then
 echo
 echo "@ Compiz già ATTIVO, non procedo"
-sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
 else
 killall -w emerald
 killall -w compiz
 compiz --replace &
-sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
 #    sleep 3 && emerald --replace &
 fi
 compiz_desktopfile
@@ -69,8 +65,10 @@ fi
 }
 
 xfwm4_desktopfile(){
-grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
+grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
 if [ $? = 0 ]; then
+sh -c 'echo "Xfwm4"'
+sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
 sh -c 'echo "[Desktop Entry]
 Version=1.0
 Type=Application
@@ -88,8 +86,10 @@ desktopfile
 }
 
 compiz_desktopfile(){
-grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
+grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
 if [ $? = 0 ]; then
+sh -c 'echo "Compiz"'
+sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
 sh -c 'echo "[Desktop Entry]
 Version=1.0
 Type=Application
@@ -125,9 +125,9 @@ OnlyShowIn=XFCE;" > $HOME/.local/share/applications/window-manager.desktop'
 fi
 
 #echo -e "\e[1;34m## Creating autostart window-manager.desktop file\e[0m"
-xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "xfwm"
+xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep -q "xfwm"
 if [ $? = 0 ]; then
-	cat $HOME/.config/autostart/window-manager.desktop | grep "xfwm"
+	cat $HOME/.config/autostart/window-manager.desktop | grep -q "xfwm"
 	if [ $? = 0 ]; then
 		echo # "already ok"
 	else
@@ -147,9 +147,9 @@ else
 	echo # "it's not xfwm4"
 fi
 
-xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep "compiz"
+xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep -q "compiz"
 if [ $? = 0 ]; then
-	cat $HOME/.config/autostart/window-manager.desktop | grep "compiz"
+	cat $HOME/.config/autostart/window-manager.desktop | grep -q "compiz"
 	if [ $? = 0 ]; then
 		echo # "already ok"
 	else
@@ -175,7 +175,7 @@ givemehelp(){
 echo "
 # window-manager
 
-# Version:    1.0.0
+# Version:    1.0.1
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
