@@ -15,7 +15,7 @@ done
 mkdir -p $HOME/.status_files/
 touch $HOME/.status_files/window_manager_status
 
-DESKTOPFILE="$(grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop | cut -d: -f1)"
+export DESKTOPFILE="$(grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop | cut -d: -f1)"
 
 wm_xfwm4(){
 pgrep -x "xfwm4"
