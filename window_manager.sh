@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version:    1.0.1
+# Version:    1.1.0
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
@@ -12,64 +12,54 @@ do
 done
 [[ $deps -ne 1 ]] && echo "" || { echo -en "\nInstalla le dipendenze necessarie e riavvia questo script\n";exit 1; }
 
-mkdir -p $HOME/.status_files/
-touch $HOME/.status_files/window_manager_status
-
-export DESKTOPFILE="$(grep -H -r "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop | cut -d: -f1)"
+export DESKTOPFILE="$(grep -Hr "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop | cut -d: -f1)"
 
 wm_xfwm4(){
-pgrep -x "xfwm4"
-if [ $? = 0 ]; then
-echo
-echo "@ Xfwm4 già ATTIVO, non procedo"
+if pgrep -x "xfwm4" > /dev/null; then
+	echo "@ Xfwm4 già ATTIVO, non procedo"
 else
-xfconf-query -c xfwm4 -p /general/workspace_count -s 4
-killall -w emerald
-killall -w compiz
-xfwm4 --replace --daemon
-xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s false
-xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s true
+	xfconf-query -c xfwm4 -p /general/workspace_count -s 4
+	killall -w emerald
+	killall -w compiz
+	xfwm4 --replace --daemon
+	xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s false
+	xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s true
 fi
 xfwm4_desktopfile
 }
 
 wm_compiz(){
-pgrep -x "compiz"
-if [ $? = 0 ]; then
-echo
-echo "@ Compiz già ATTIVO, non procedo"
+if pgrep -x "compiz" > /dev/null; then
+	echo "@ Compiz già ATTIVO, non procedo"
 else
-killall -w emerald
-killall -w compiz
-compiz --replace &
-#    sleep 3 && emerald --replace &
+	killall -w emerald
+	killall -w compiz
+	compiz --replace &
+#	sleep 3 && emerald --replace &
 fi
 compiz_desktopfile
 }
 
 wm_toggle(){
-if cat $HOME/.status_files/window_manager_status |
-  grep -xqFe "Compiz"
-then
-echo "@ Compiz è l'attuale Window Manager, procedo col cambiarlo in Xfwm4"
-   wm_xfwm4
-elif cat $HOME/.status_files/window_manager_status |
-  grep -xqFe "Xfwm4"
-then
-echo "@ Xfwm4 è l'attuale Window Manager, procedo col cambiarlo in Compiz"
-   wm_compiz
+if pgrep -x "compiz" > /dev/null; then
+	echo "@ Compiz è l'attuale Window Manager, procedo col cambiarlo in Xfwm4"
+	wm_xfwm4
+elif pgrep -x "xfwm4" > /dev/null; then
+	echo "@ Xfwm4 è l'attuale Window Manager, procedo col cambiarlo in Compiz"
+	wm_compiz
 else
-echo "@ In DUBBIO sullo stato del Window Manager, attivo Compiz"
-   wm_compiz
+#	echo "@ In DUBBIO sullo stato del Window Manager, attivo Compiz" && wm_compiz
+	echo "@ In DUBBIO sullo stato del Window Manager, attivo Xfwm4" && wm_xfwm4
 fi
 }
 
 xfwm4_desktopfile(){
-grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
-if [ $? = 0 ]; then
-sh -c 'echo "Xfwm4"'
-sh -c 'echo "Xfwm4" > $HOME/.status_files/window_manager_status'
-sh -c 'echo "[Desktop Entry]
+#if grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop; then
+if [ -e $DESKTOPFILE ]; then
+	if cat $DESKTOPFILE | grep -q "Name=Compiz"; then
+		echo -n
+	else
+		sh -c 'echo "[Desktop Entry]
 Version=1.0
 Type=Application
 Name=Compiz (Attiva effetti)
@@ -79,18 +69,20 @@ Icon=xfce-display-mirror
 Path=
 Terminal=false
 StartupNotify=false" > $DESKTOPFILE'
+	fi
 else
-echo
+	echo -n
 fi
 desktopfile
 }
 
 compiz_desktopfile(){
-grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop
-if [ $? = 0 ]; then
-sh -c 'echo "Compiz"'
-sh -c 'echo "Compiz" > $HOME/.status_files/window_manager_status'
-sh -c 'echo "[Desktop Entry]
+#if grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop; then
+if [ -e $DESKTOPFILE ]; then
+	if cat $DESKTOPFILE | grep -q "Name=Xfwm"; then
+		echo -n
+	else
+		sh -c 'echo "[Desktop Entry]
 Version=1.0
 Type=Application
 Name=Xfwm (Disattiva effetti)
@@ -100,19 +92,19 @@ Icon=xfce-display-mirror
 Path=
 Terminal=false
 StartupNotify=false" > $DESKTOPFILE'
+	fi
 else
-echo
+	echo -n
 fi
 desktopfile
 }
 
 desktopfile(){
 #echo -e "\e[1;34m## Creating window-manager.desktop file\e[0m"
-if [ -e $HOME/.local/share/applications/window-manager.desktop ]
-then
-echo # "exist"
+if [ -e $HOME/.local/share/applications/window-manager.desktop ]; then
+	echo # "exist"
 else
-sh -c 'echo "
+	sh -c 'echo "
 [Desktop Entry]
 Name=window-manager toggle
 Exec=window-manager
@@ -125,10 +117,8 @@ OnlyShowIn=XFCE;" > $HOME/.local/share/applications/window-manager.desktop'
 fi
 
 #echo -e "\e[1;34m## Creating autostart window-manager.desktop file\e[0m"
-xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep -q "xfwm"
-if [ $? = 0 ]; then
-	cat $HOME/.config/autostart/window-manager.desktop | grep -q "xfwm"
-	if [ $? = 0 ]; then
+if xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep -q "xfwm"; then
+	if cat $HOME/.config/autostart/window-manager.desktop | grep -q "xfwm"; then
 		echo # "already ok"
 	else
 		sh -c 'echo "[Desktop Entry]
@@ -143,14 +133,8 @@ StartupNotify=false
 Terminal=false
 Hidden=false" > $HOME/.config/autostart/window-manager.desktop'
 	fi
-else
-	echo # "it's not xfwm4"
-fi
-
-xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep -q "compiz"
-if [ $? = 0 ]; then
-	cat $HOME/.config/autostart/window-manager.desktop | grep -q "compiz"
-	if [ $? = 0 ]; then
+elif xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command | grep -q "compiz"; then
+	if cat $HOME/.config/autostart/window-manager.desktop | grep -q "compiz"; then
 		echo # "already ok"
 	else
 		sh -c 'echo "[Desktop Entry]
@@ -175,7 +159,7 @@ givemehelp(){
 echo "
 # window-manager
 
-# Version:    1.0.1
+# Version:    1.1.0
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
@@ -205,24 +189,19 @@ Questo avviatore aggiunto al pannello sarà dinamico, se Xfwm4 è attivo indiche
 exit 0
 }
 
-if [ "$1" = "--xfwm4" ]
-then
-   wm_xfwm4
+if [ "$1" = "--xfwm4" ]; then
+	wm_xfwm4
 elif [ "$1" = "--compiz" ]
 then
-   wm_compiz
-elif [ "$1" = "--toggle" ]
-then
-   wm_toggle
-elif [ "$1" = "--xfwm4-desktopfile" ]
-then
-   xfwm4_desktopfile
-elif [ "$1" = "--compiz-desktopfile" ]
-then
-   compiz_desktopfile
-elif [ "$1" = "--desktopfile" ]
-then
-   desktopfile
+	wm_compiz
+elif [ "$1" = "--toggle" ]; then
+	wm_toggle
+elif [ "$1" = "--xfwm4-desktopfile" ]; then
+	xfwm4_desktopfile
+elif [ "$1" = "--compiz-desktopfile" ]; then
+	compiz_desktopfile
+elif [ "$1" = "--desktopfile" ]; then
+	desktopfile
 else
-   wm_toggle
+	wm_toggle
 fi
