@@ -1,6 +1,6 @@
 # window-manager
 
-# Version:    1.1.0
+# Version:    2.0.0
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
@@ -17,6 +17,13 @@ sudo chown root:root /opt/window-manager/window_manager.sh
 sudo chmod 755 /opt/window-manager/window_manager.sh
 sudo chmod +x /opt/window-manager/window_manager.sh
 sudo ln -s /opt/window-manager/window_manager.sh /usr/local/bin/window-manager
+```
+
+### DIPENDENZE
+Questo script necessita di xfwm4 compiz xfconf-query yad.
+Per installarle, ad esempio tramite apt, da terminale digitare:
+```sh
+sudo apt-get install xfwm4 compiz xfconf-query yad
 ```
 
 ### UTILIZZO
