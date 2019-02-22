@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Version:    1.1.0
+# Version:    2.0.0
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
 
 #echo -n "Checking dependencies... "
-for name in xfwm4 compiz xfconf-query
+for name in xfwm4 compiz xfconf-query yad
 do
   [[ $(which $name 2>/dev/null) ]] || { echo -en "\n$name è richiesto da questo script. Utilizza 'sudo apt-get install $name'";deps=1; }
 done
@@ -53,8 +53,37 @@ else
 fi
 }
 
+wm_yad(){
+if pgrep -x "compiz" > /dev/null; then
+	WINDOWMANAGER=Xfwm4
+elif pgrep -x "xfwm4" > /dev/null; then
+	WINDOWMANAGER=Compiz
+fi
+pkill -15 -f "yad --title=Window Manager*"
+yad --title="Window Manager" --text="Vuoi passare a $WINDOWMANAGER?" \
+--center \
+--window-icon "monitor" \
+--image-on-top \
+--image "monitor" \
+--wrap \
+--sticky \
+--on-top \
+--buttons-layout=center \
+--button=gtk-no:0 \
+--button=gtk-yes:1
+
+foo=$?
+
+if [ "$foo" -eq 0 ]; then
+	exit 0
+elif [ "$foo" -eq 1 ]; then
+	wm_toggle
+else
+	exit 0
+fi
+}
+
 xfwm4_desktopfile(){
-#if grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop; then
 if [ -e $DESKTOPFILE ]; then
 	if cat $DESKTOPFILE | grep -q "Name=Compiz"; then
 		echo -n
@@ -77,7 +106,6 @@ desktopfile
 }
 
 compiz_desktopfile(){
-#if grep -Hrq "Exec=window-manager" $HOME/.config/xfce4/panel/*/*.desktop; then
 if [ -e $DESKTOPFILE ]; then
 	if cat $DESKTOPFILE | grep -q "Name=Xfwm"; then
 		echo -n
@@ -88,7 +116,7 @@ Type=Application
 Name=Xfwm (Disattiva effetti)
 Comment=Attiva il window manager Xfwm4
 Exec=window-manager
-Icon=xfce-display-mirror
+Icon=xfce-display-mirror1
 Path=
 Terminal=false
 StartupNotify=false" > $DESKTOPFILE'
@@ -107,13 +135,14 @@ else
 	sh -c 'echo "
 [Desktop Entry]
 Name=window-manager toggle
-Exec=window-manager
+Comment=Alterna i window manager Xfwm4 e Compiz
+Exec=window-manager --yad
 Icon=xfce-display-mirror
 Terminal=false
 Type=Application
 StartupNotify=false
-Categories=XFCE;GTK;Settings;DesktopSettings;X-XFCE-SettingsDialog;X-XFCE-PersonalSettings;
-OnlyShowIn=XFCE;" > $HOME/.local/share/applications/window-manager.desktop'
+Categories=XFCE;GTK;System;Settings;DesktopSettings;X-XFCE-SettingsDialog;X-XFCE-PersonalSettings;
+OnlyShowIn=XFCE;" > $HOME/.local/share/applications1/window-manager.desktop'
 fi
 
 #echo -e "\e[1;34m## Creating autostart window-manager.desktop file\e[0m"
@@ -126,7 +155,6 @@ Encoding=UTF-8
 Version=0.9.4
 Type=Application
 Name=window-manager
-Comment=
 Exec=window-manager --xfwm4-desktopfile
 OnlyShowIn=XFCE;
 StartupNotify=false
@@ -142,7 +170,6 @@ Encoding=UTF-8
 Version=0.9.4
 Type=Application
 Name=window-manager
-Comment=
 Exec=window-manager --compiz-desktopfile
 OnlyShowIn=XFCE;
 StartupNotify=false
@@ -159,7 +186,7 @@ givemehelp(){
 echo "
 # window-manager
 
-# Version:    1.1.0
+# Version:    2.0.0
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
@@ -196,6 +223,8 @@ then
 	wm_compiz
 elif [ "$1" = "--toggle" ]; then
 	wm_toggle
+elif [ "$1" = "--yad" ]; then
+	wm_yad
 elif [ "$1" = "--xfwm4-desktopfile" ]; then
 	xfwm4_desktopfile
 elif [ "$1" = "--compiz-desktopfile" ]; then
