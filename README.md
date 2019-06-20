@@ -23,7 +23,7 @@ sudo ln -s /opt/window-manager/window_manager.sh /usr/local/bin/window-manager
 Questo script necessita di xfwm4 compiz xfconf-query yad.
 Per installarle, ad esempio tramite apt, da terminale digitare:
 ```sh
-sudo apt-get install xfwm4 compiz xfconf-query yad
+sudo apt-get install xfwm4 compiz xfconf yad
 ```
 
 ### UTILIZZO
