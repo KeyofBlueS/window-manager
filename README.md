@@ -1,6 +1,6 @@
 # window-manager
 
-# Version:    2.0.5
+# Version:    2.0.6
 # Author:     KeyofBlueS
 # Repository: https://github.com/KeyofBlueS/window-manager
 # License:    GNU General Public License v3.0, https://opensource.org/licenses/GPL-3.0
